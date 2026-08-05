@@ -1,0 +1,230 @@
+Part 1: Version Control with Git & GitHub
+
+Question 1: Repository Initialization
+
+mkdir webproject
+cd webproject
+ 
+git init
+ 
+
+echo "<!DOCTYPE html><html><body><h1>Hello</h1></body></html>" > index.html
+ 
+
+git add index.html
+ 
+
+git commit -m "Initial project structure"
+
+📌 Screenshot 1: Capture the terminal showing git init output and the git commit confirmation message.
+
+Question 2: Branching & Modification
+
+
+Solution:
+
+git checkout -b feature-style
+ 
+
+echo "body { font-family: Arial, sans-serif; }" > style.css
+ 
+
+git add style.css
+ 
+
+git commit -m "Add style.css on feature-style branch"
+
+📌 Screenshot 2: Capture the terminal showing branch creation and the commit on the feature-style branch.
+
+
+Solution:
+
+git checkout main
+ 
+
+git merge feature-style
+ 
+git log --oneline
+
+📌 Screenshot 3: Capture the terminal showing the successful merge output or git log --oneline confirming both commits.
+
+Question 4: Remote Push
+
+
+Solution:
+
+ 
+
+git remote add origin https://github.com/https:/github.com/harshal484/webproject.git
+ 
+
+git branch -M main
+ 
+
+git push -u origin main
+
+📌 Screenshot 4: Capture the terminal showing the successful git push origin main output with branch tracking info.
+
+Part 2: Containerization with Docker
+
+Question 1: Container Execution
+Pull the official nginx image and run a container in detached mode, mapping host port 8081 to container port 80.
+
+Solution:
+
+docker pull nginx
+ 
+
+docker run -d -p 8081:80 --name mynginx nginx
+ 
+
+docker ps
+
+📌 Screenshot 5: Capture the docker run command output and docker ps showing the running nginx container with port 0.0.0.0:8081->80/tcp.
+
+Question 2: Persistent Storage
+
+
+Solution:
+
+docker volume create db_data
+ 
+
+docker run -d --name mysqldb -e MYSQL_ROOT_PASSWORD=admin -v db_data:/var/lib/mysql  mysql:latest
+ 
+
+docker volume ls
+ 
+
+docker inspect mysqldb
+
+📌 Screenshot 6: Capture docker volume ls showing db_data, and/or docker inspect output confirming the volume is mounted at /var/lib/mysql.
+
+Question 3: Multi-Container Setup with Docker Compose
+
+
+Solution — docker-compose.yml file content:
+
+version: '3.8'
+ 
+services:
+  app:
+    image: nginx
+    ports:
+      - "8081:80"
+    depends_on:
+      - database
+ 
+  database:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+    volumes:
+      - db_data:/var/lib/mysql
+ 
+volumes:
+  db_data:
+
+Commands to create and run:
+# Step 1: Create the docker-compose.yml file in your working directory
+# (paste the YAML content above into the file)
+ 
+# Step 2: Start both containers in detached mode
+docker-compose up -d
+ 
+# Step 3: Verify both services are running
+docker-compose ps
+
+📌 Screenshot 7: Capture the contents of docker-compose.yml AND the output of docker-compose up -d showing both services starting.
+
+Part 3: CI/CD Automation with Jenkins
+
+Question 1: Pipeline Creation
+Create a Declarative Pipeline with three stages: Build, Test, and Deploy. Each stage should execute an echo command indicating its progress.
+
+Solution — Jenkinsfile / Pipeline Script:
+pipeline {
+    agent any
+ 
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building the application...'
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Running tests...'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying the application...'
+            }
+        }
+    }
+}
+
+Steps to create in Jenkins:
+•Open Jenkins → Click New Item → Enter job name → Select Pipeline → Click OK.
+•Scroll to the Pipeline section → Select Pipeline script.
+•Paste the above script into the editor → Click Save.
+•Click Build Now → Wait for the build to complete.
+
+📌 Screenshot 8: Capture the Jenkins Stage View after a successful run showing all three stages (Build, Test, Deploy) in green.
+
+Question 2: Docker Agent Integration
+Modify your pipeline to use a Docker agent with the image node:14. Within the Build stage, run the shell command npm --version.
+
+Solution — Updated Jenkinsfile:
+pipeline {
+    agent {
+        docker {
+            image 'node:14'
+        }
+    }
+ 
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building inside Node.js Docker container...'
+                sh 'npm --version'
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Running tests...'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying the application...'
+            }
+        }
+    }
+}
+
+Steps to update in Jenkins:
+•Open the existing pipeline job → Click Configure.
+•Replace the old pipeline script with the updated script above → Click Save.
+•Click Build Now → Open Console Output to verify npm --version ran inside the node:14 container.
+
+📌 Screenshot 9: Capture the updated Pipeline script AND the Console Output showing npm --version output confirming execution inside the Node.js container.
+
+Question 3: Webhook Trigger
+Configure the Jenkins job to be triggered by a GitHub Webhook.
+
+Solution — Part A: Configure Jenkins Job
+# No code needed — follow the UI steps below:
+
+•Open your Jenkins pipeline job → Click Configure.
+•Scroll to the Build Triggers section.
+•Check the checkbox: "GitHub hook trigger for GITScm polling".
+•Click Save.
+
+Solution — Part B: Add Webhook on GitHub
+•Go to your GitHub repository → Settings → Webhooks → Add webhook.
+•In Payload URL enter:  http://<your-jenkins-url>/github-webhook/
+•Set Content type to: application/json
+•Select: Just the push event
+•Click Add webhook.
